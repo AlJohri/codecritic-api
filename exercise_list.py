@@ -1,5 +1,5 @@
 import lxml.html, os, json
-from canvas import auth, state, SESSION_EXPIRED
+from canvas import login, state, SESSION_EXPIRED
 from urlparse import urlparse, parse_qsl
 
 s = login()

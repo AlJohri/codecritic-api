@@ -1,5 +1,5 @@
 import json
-from canvas import auth
+from canvas import login
 
 exercises = json.load(open("exercises.json"))
 

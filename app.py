@@ -2,9 +2,9 @@ import os
 from flask import Flask
 app = Flask(__name__)
 
-from canvas import auth, check_queue
+from canvas import login, check_queue
 
-s = auth()
+s = login()
 
 @app.route("/")
 def hello():

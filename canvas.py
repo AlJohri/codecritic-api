@@ -7,6 +7,14 @@ PASSWORD_INVALID = "The NetID and/or password you entered was invalid."
 
 state = lambda response, state_string: state_string in response.text
 
+def login():
+  s = auth()
+  response = s.get("https://lyonesse.cs.northwestern.edu:8443/Submitter/student/reviewer.do")
+  if state(response, SESSION_EXPIRED):
+    os.remove("canvas.pickle")
+    s = auth(override=True)
+  return s
+
 def auth(override=False):
   if not os.path.isfile("canvas.pickle") or override:
     print "DEBUG", "redownloading session"
@@ -41,30 +49,18 @@ def auth(override=False):
     s = pickle.load(open("canvas.pickle", "rb"))
   return s
 
-def get_page(s):
-  return s.get("https://lyonesse.cs.northwestern.edu:8443/Submitter/student/reviewer.do")  
-
 def parse_page(response):
-    doc = lxml.html.fromstring(response.content)
-    queue_size = doc.cssselect("h2")[0].getnext().cssselect("tr:nth-child(3) th")[0].text_content().split("; ")[-1].replace(" (all)", "")
-    you_can_submit = doc.cssselect("h2")[0].getnext().cssselect("tr:nth-child(3) th")[1].text_content().replace("\r\n", "").replace(" ", "")
-    most_recent_review_time = doc.cssselect("h2")[0].getnext().cssselect("tr:nth-child(3) th")[2].text_content()
-    return (queue_size, you_can_submit, most_recent_review_time)
+  doc = lxml.html.fromstring(response.content)
+  queue_size = doc.cssselect("h2")[0].getnext().cssselect("tr:nth-child(3) th")[0].text_content().split("; ")[-1].replace(" (all)", "")
+  you_can_submit = doc.cssselect("h2")[0].getnext().cssselect("tr:nth-child(3) th")[1].text_content().replace("\r\n", "").replace(" ", "")
+  most_recent_review_time = doc.cssselect("h2")[0].getnext().cssselect("tr:nth-child(3) th")[2].text_content()
+  return (queue_size, you_can_submit, most_recent_review_time)
 
 def check_queue(s=None):
-  print "holler"
-  if not s: s = auth()
-  response = get_page(s)
-
-  while state(response, SESSION_EXPIRED):
-    os.remove("canvas.pickle")
-    s = auth(override=False)
-    response = get_page()
-
+  s = login()
+  response = s.get("https://lyonesse.cs.northwestern.edu:8443/Submitter/student/reviewer.do")
   queue_size, you_can_submit, most_recent_review_time = parse_page(response)
-
   print "DEBUG", (queue_size, you_can_submit, most_recent_review_time)
-
   return (queue_size, you_can_submit, most_recent_review_time)
 
 if __name__ == "__main__":

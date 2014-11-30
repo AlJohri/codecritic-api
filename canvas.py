@@ -11,11 +11,22 @@ state = lambda response, state_string: state_string in response.text
 
 def authenticated_request(url, params=None, data=None):
   s = auth()
-  response = s.get(url, params=params, data=data)
+
+  # TODO: make this not terrible
+  if data == None:
+    response = s.get(url, params=params)
+  else:
+    response = s.post(url, data=data)
+
   if state(response, SESSION_EXPIRED):
     os.remove("canvas.pickle")
     s = auth(override=True)
-    response = s.get(url, params=params, data=data)
+
+    if data == None:
+      response = s.get(url, params=params)
+    else:
+      response = s.post(url, data=data)
+
   return response
 
 def auth(override=False):

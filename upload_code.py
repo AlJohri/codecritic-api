@@ -1,5 +1,5 @@
 import json
-from canvas import login
+from canvas import authenticated_request
 
 exercises = json.load(open("exercises.json"))
 
@@ -16,6 +16,5 @@ payload = {
 	"code": CODE
 }
 
-s = login()
-response = s.post("https://lyonesse.cs.northwestern.edu:8443/Submitter/student/reviewer.do", data=payload)
+response = authenticated_request("https://lyonesse.cs.northwestern.edu:8443/Submitter/student/reviewer.do", data=payload)
 print response.content

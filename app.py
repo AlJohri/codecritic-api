@@ -7,7 +7,7 @@ from codecritic import do_cmd
 @app.route("/")
 @app.route("/home")
 def home():
-    return jsonify(**do_cmd("home"))
+    return jsonify(**do_cmd("home")['statistics'])
 
 @app.route("/remaining")
 def remaining():
